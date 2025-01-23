@@ -22,7 +22,7 @@ public class ButtonActionListener {
     public void handleButtonAction(Button button) {
         String text = button.getText();
         switch (text) {
-            case "Add User" -> {
+            case "Registration" -> {
                 if (username.getText().isEmpty() || passwordField.getText().isEmpty()) {
                     showAlert(Alert.AlertType.INFORMATION, "Please fill all the fields", "Info");
                 } else {
@@ -40,6 +40,7 @@ public class ButtonActionListener {
                         if (!result) {
                             showAlert(Alert.AlertType.ERROR, "User not added", "Error");
                         }
+                        SceneController.activate("main");
                     } catch (RuntimeException ex) {
                         showAlert(Alert.AlertType.WARNING, ex.getMessage(), "Warning");
                     }
