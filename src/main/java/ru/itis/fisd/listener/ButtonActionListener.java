@@ -63,6 +63,10 @@ public class ButtonActionListener {
             case "Register" -> SceneController.activate("register");
 
             case "Back" -> SceneController.activate("main");
+
+            case "Start Game" -> SceneController.activate("login");
+
+            case "Login" -> SceneController.activate("start");
         }
     }
 
