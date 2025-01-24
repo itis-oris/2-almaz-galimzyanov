@@ -3,12 +3,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane fx:id="rootPane" alignment="CENTER" hgap="10" prefHeight="137.0" prefWidth="317.0" vgap="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane fx:id="rootPane" alignment="CENTER" hgap="10" prefHeight="137.0" prefWidth="317.0" vgap="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.itis.fisd.client.gui.controller.StartFXController">
     <Label text="START" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="60"  alignment="CENTER"/>
 
     <Label text="Enter port" prefWidth="60" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="CENTER"/>
     <TextField prefWidth="90" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-    <Button text="Start" prefWidth="90" fx:id="startGame" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    <Button text="Start" prefWidth="90" fx:id="start" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
 
 </GridPane>
