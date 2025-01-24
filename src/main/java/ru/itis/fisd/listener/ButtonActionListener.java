@@ -61,6 +61,8 @@ public class ButtonActionListener {
             );
 
             case "Register" -> SceneController.activate("register");
+
+            case "Back" -> SceneController.activate("main");
         }
     }
 
