@@ -53,6 +53,8 @@ public class MainFX extends Application {
         try {
             controller.addScene("main", FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/main.fxml"))));
             controller.addScene("register", FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/register.fxml"))));
+            controller.addScene("login", FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/login.fxml"))));
+            controller.addScene("start", FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/start.fxml"))));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
