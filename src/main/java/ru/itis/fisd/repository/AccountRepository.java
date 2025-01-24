@@ -25,6 +25,12 @@ public class AccountRepository {
             WHERE id = ?
             """;
 
+    private static final String SQL_GET_BY_NAME = """
+            SELECT *
+            FROM account
+            WHERE name = ?
+            """;
+
     private static final String SQL_INSERT = """
             INSERT INTO account(name, password, all_games, win_games)
             VALUES (?, ?, ?, ?)
@@ -115,4 +121,20 @@ public class AccountRepository {
         }
     }
 
+    public Optional<AccountEntity> getByName(String name) {
+        try (
+                Connection connection = db.getConnection()
+        ) {
+            PreparedStatement statement = connection.prepareStatement(SQL_GET_BY_NAME);
+            statement.setString(1, name);
+            ResultSet result = statement.executeQuery();
+
+            db.releaseConnection(connection);
+
+            return result.next() ? Optional.of(mapper.mapRow(result)) : Optional.empty();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
