@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane fx:id="rootPane" alignment="CENTER" hgap="10" prefHeight="137.0" prefWidth="317.0" vgap="10" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.itis.fisd.client.gui.controller.StatisticsFXController">
+    <Label text="Your Statistics" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="80" alignment="CENTER"/>
+    <Label text="Games Played" GridPane.columnIndex="0" GridPane.rowIndex="1" prefWidth="90" alignment="CENTER"/>
+    <Label text="Games Winned" GridPane.columnIndex="0" GridPane.rowIndex="2" prefWidth="90" alignment="CENTER"/>
+    <Label text="Games Win %" GridPane.columnIndex="0" GridPane.rowIndex="3" prefWidth="90" alignment="CENTER"/>
+
+    <Label fx:id="all" text="0" GridPane.columnIndex="2" GridPane.rowIndex="1" prefWidth="60" alignment="CENTER"/>
+    <Label fx:id="win" text="0" GridPane.columnIndex="2" GridPane.rowIndex="2" prefWidth="60" alignment="CENTER"/>
+    <Label fx:id="percent" text="0" GridPane.columnIndex="2" GridPane.rowIndex="3" prefWidth="60" alignment="CENTER"/>
+
+    <Button fx:id="back" prefHeight="26.0" prefWidth="60.0" text="Back" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+</GridPane>
