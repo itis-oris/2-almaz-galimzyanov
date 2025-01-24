@@ -18,6 +18,10 @@ public class AccountService {
         return accountRepository.getById(id);
     }
 
+    public Optional<AccountEntity> getByName(String name) {
+        return accountRepository.getByName(name);
+    }
+
     public boolean save(AccountEntity accountEntity) {
         return accountRepository.insert(accountEntity);
     }
