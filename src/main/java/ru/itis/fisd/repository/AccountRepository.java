@@ -57,8 +57,6 @@ public class AccountRepository {
             statement.setLong(1, id);
             ResultSet result = statement.executeQuery();
 
-            db.releaseConnection(connection);
-
             return result.next() ? Optional.of(mapper.mapRow(result)) : Optional.empty();
 
         } catch (SQLException e) {
@@ -77,7 +75,6 @@ public class AccountRepository {
             statement.setInt(4, 0);
 
             int result = statement.executeUpdate();
-            db.releaseConnection(connection);
             return result == 1;
 
         } catch (SQLException e) {
@@ -95,7 +92,6 @@ public class AccountRepository {
             statement.setLong(3, entity.getId());
 
             int result = statement.executeUpdate();
-            db.releaseConnection(connection);
             return result == 1;
 
         } catch (SQLException e) {
@@ -113,7 +109,6 @@ public class AccountRepository {
             statement.setInt(3, entity.getWinGames());
 
             int result = statement.executeUpdate();
-            db.releaseConnection(connection);
             return result == 1;
 
         } catch (SQLException e) {
@@ -128,8 +123,6 @@ public class AccountRepository {
             PreparedStatement statement = connection.prepareStatement(SQL_GET_BY_NAME);
             statement.setString(1, name);
             ResultSet result = statement.executeQuery();
-
-            db.releaseConnection(connection);
 
             return result.next() ? Optional.of(mapper.mapRow(result)) : Optional.empty();
 
