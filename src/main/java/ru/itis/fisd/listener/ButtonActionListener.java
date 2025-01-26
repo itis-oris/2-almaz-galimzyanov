@@ -7,9 +7,12 @@ import javafx.scene.control.TextField;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import ru.itis.fisd.app.Game;
 import ru.itis.fisd.client.gui.controller.SceneController;
 import ru.itis.fisd.model.AccountEntity;
 import ru.itis.fisd.service.AccountService;
+
+import java.io.IOException;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -67,6 +70,14 @@ public class ButtonActionListener {
             case "Start Game" -> SceneController.activate("login");
 
             case "Login" -> SceneController.activate("start");
+
+            case "Start" -> {
+                try {
+                    new Game();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
