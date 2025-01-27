@@ -1,9 +1,13 @@
 package ru.itis.fisd.server;
 
 import lombok.Getter;
+import ru.itis.fisd.protocol.Converter;
+import ru.itis.fisd.protocol.Protocol;
+import ru.itis.fisd.protocol.ProtocolType;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -40,9 +44,9 @@ public class Server {
                 }
 
                 System.out.println("Client connected: " + clientSocket);
-                printClientList();
+                printClientList(server);
 
-                new Thread(() -> handleClient(clientSocket)).start();
+                new Thread(() -> handleClient(clientSocket, server)).start();
             }
 
         } catch (IOException e) {
@@ -53,13 +57,13 @@ public class Server {
         }
     }
 
-    private static void handleClient(Socket clientSocket) {
+    private static void handleClient(Socket clientSocket, ServerSocket serverSocket) {
         threadPool.execute(() -> {
             try (InputStream input = clientSocket.getInputStream()) {
                 byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = input.read(buffer)) != -1) {
-                    String message = new String(buffer, 0, bytesRead);
+                while (input.read(buffer) != -1) {
+                    Protocol protocol = Converter.decode(buffer);
+                    String message = protocol.body();
                     System.out.println("Received from client: " + message);
                 }
             } catch (IOException e) {
@@ -67,9 +71,19 @@ public class Server {
             } finally {
                 synchronized (clients) {
                     clients.remove(clientSocket);
+                    if (clients.isEmpty()) {
+                        System.out.println("No clients connected");
+                        isRunning = false;
+                        try {
+                            serverSocket.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
                 }
                 System.out.println("Client disconnected: " + clientSocket);
-                printClientList();
+                printClientList(null);
 
                 try {
                     clientSocket.close();
@@ -78,14 +92,32 @@ public class Server {
                 }
             }
         });
-        }
+    }
 
 
-    private static void printClientList() {
+    private static void printClientList(ServerSocket server) {
         synchronized (clients) {
             System.out.println("Currently connected clients (" + clients.size() + "):");
             for (Socket client : clients) {
                 System.out.println("- " + client);
+            }
+
+            try {
+                if (clients.size() == 1) {
+                    for (Socket client : clients) {
+                        OutputStream writer = client.getOutputStream();
+                        Protocol message = new Protocol(ProtocolType.INFO, "wait");
+                        writer.write(Converter.encode(message));
+                    }
+                } else if (clients.size() == 2) {
+                    for (Socket client : clients) {
+                        OutputStream writer = client.getOutputStream();
+                        Protocol message = new Protocol(ProtocolType.INFO, "start");
+                        writer.write(Converter.encode(message));
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }
