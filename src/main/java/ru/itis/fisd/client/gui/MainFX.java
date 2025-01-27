@@ -34,27 +34,13 @@ public class MainFX extends Application {
             Parent root = loader.load();
 
             // Setup the scene
-            Scene scene = new Scene(root, 460, 300);
+            Scene scene = new Scene(root, 460, 400);
             SceneController controller = new SceneController(scene);
             addScenes(controller);
 
             stage.setTitle("UNO Game");
             stage.setScene(scene);
             ss = stage;
-            // Close resources on exit
-            stage.setOnCloseRequest(event -> {
-                System.out.println("Closing");
-                System.out.println(clientSocket);
-                                    if (clientSocket != null && !clientSocket.isClosed()) {
-                                        try {
-                                            clientSocket.close();
-                                        } catch (IOException e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                        DBConnection.getInstance().destroy();
-                System.out.println("Connection closed by MainFX.");
-                    }
-            });
 
             stage.show();
         } catch (IOException e) {
@@ -91,6 +77,7 @@ public class MainFX extends Application {
                 DBConnection.getInstance().destroy();
                 System.out.println("Connection closed by MainFX.");
             }
+            System.exit(0);
         });
     }
 }
