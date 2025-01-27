@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          alignment="CENTER" hgap="10" vgap="10" fx:controller="ru.itis.fisd.client.gui.controller.GameFXController">
+
+    <!-- Карточки -->
+    <Label fx:id="enemy" prefWidth="115" text="Enemy's card count:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+    <Label fx:id="cards" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+    <Button fx:id="coloda" text="COLODA"
+            style="-fx-background-color: green; -fx-alignment: center;"
+            prefHeight="200" prefWidth="100" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+
+    <!-- Текущая карта -->
+    <Label fx:id="current" text="current card"
+           prefWidth="100" prefHeight="200"
+           style="-fx-background-color: lightblue; -fx-alignment: center;"
+           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+    <!-- Кнопка DO -->
+    <Button fx:id="uno" prefWidth="150" prefHeight="80" text="UNO!" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+    <!-- Горизонтальная строка кнопок -->
+    <ScrollPane fx:id="scrollPane"
+                GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2"
+                fitToHeight="true" vbarPolicy="NEVER">
+        <HBox fx:id="buttonRow" spacing="10" alignment="CENTER" prefHeight="100"/>
+    </ScrollPane>
+</GridPane>
