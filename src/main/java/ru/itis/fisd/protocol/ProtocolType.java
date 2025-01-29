@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum ProtocolType {
 
-    PING("0"), INFO("1"), ERROR("2"), GAME("3");
+    CLOSE("0"), UI("1"), INFO("10"), ERROR("-1"), GAME("2"), GET("111");
 
-    private String value;
+    private final String value;
 
     ProtocolType(String i) {
         value = i;
