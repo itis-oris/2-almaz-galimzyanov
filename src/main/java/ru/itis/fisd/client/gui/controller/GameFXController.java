@@ -14,12 +14,17 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import lombok.Getter;
+import lombok.Setter;
 import ru.itis.fisd.entity.Card;
-import ru.itis.fisd.entity.Deck;
 import ru.itis.fisd.entity.Player;
 import ru.itis.fisd.listener.GameActionListener;
 
+import java.util.List;
+
 public class GameFXController {
+
+    @Setter
+    Player player;
 
     @Getter
     private static GameFXController instance;
@@ -37,6 +42,7 @@ public class GameFXController {
     @FXML
     public Label cards;
 
+    @Getter
     @FXML
     private HBox buttonRow;
 
@@ -54,17 +60,6 @@ public class GameFXController {
         initStyle();
 
         buttonActionListener = new GameActionListener(this);
-
-        int totalButtons = 7;
-        Player player = new Player();
-
-        for (int i = 0; i < totalButtons; i++) {
-            Card card = getRandomCard();
-            player.getPlayerCards().add(card);
-            Button button = getButton(card, player);
-            buttonRow.getChildren().add(button);
-        }
-
     }
 
     private void initStyle() {
@@ -98,9 +93,12 @@ public class GameFXController {
         return button;
     }
 
-    private Card getRandomCard() {
-        System.out.println("DECK SIZE: " + Deck.cards.size());
-        return Deck.cards.remove();
+    public void updatePlayerCards(List<Card> playerCards) {
+        buttonRow.getChildren().clear();
+        for (Card card : playerCards) {
+            Button button = getButton(card, player);
+            buttonRow.getChildren().add(button);
+        }
     }
 
     public void setDeckCard(String value, Paint color) {
