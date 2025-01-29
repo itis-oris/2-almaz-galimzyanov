@@ -15,15 +15,11 @@ public class SceneController {
         SceneController.main = main;
     }
 
-    public void addScene(String name, Pane pane){
+    public void addScene(String name, Pane pane) {
         screenMap.put(name, pane);
     }
 
-    public void removeScene(String name){
-        screenMap.remove(name);
-    }
-
-    public static void activate(String name){
+    public static void activate(String name) {
         Platform.runLater(() -> main.setRoot(screenMap.get(name)));
     }
 }
