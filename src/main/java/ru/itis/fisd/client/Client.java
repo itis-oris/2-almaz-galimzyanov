@@ -72,6 +72,14 @@ public class Client {
                         System.out.println(Arrays.toString(parts));
                         String value = parts[0];
                         String color = parts[1];
+                        CardColor cardColor = switch (color) {
+                            case "0xff0000ff" -> CardColor.RED;
+                            case "0x0000ffff" -> CardColor.BLUE;
+                            case "0xffff00ff" -> CardColor.YELLOW;
+                            case "0x008000ff" -> CardColor.GREEN;
+                            default -> throw new IllegalStateException("Unexpected value: " + color);
+                        };
+                        GameState.currentCard = new Card(Integer.parseInt(value), CardColor.valueOf(String.valueOf(cardColor)));
                         GameFXController.getInstance().setDeckCard(value, Paint.valueOf(color));
                     } else if (protocol.type().equals(ProtocolType.UI)) {
                         switch (message) {

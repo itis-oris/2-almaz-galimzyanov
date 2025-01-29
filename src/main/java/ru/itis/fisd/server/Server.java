@@ -1,8 +1,11 @@
 package ru.itis.fisd.server;
 
+import javafx.scene.paint.Color;
 import lombok.Getter;
+import ru.itis.fisd.app.GameLogic;
 import ru.itis.fisd.app.GameState;
 import ru.itis.fisd.entity.Card;
+import ru.itis.fisd.entity.CardColor;
 import ru.itis.fisd.entity.Deck;
 import ru.itis.fisd.protocol.Converter;
 import ru.itis.fisd.protocol.Protocol;
@@ -23,8 +26,10 @@ public class Server {
     private static boolean isRunning = false;
     private static final List<Socket> clients = new ArrayList<>();
     private static final Deck deck = new Deck();
+    private static final GameLogic gameLogic = new GameLogic();
 
     public static void main(String[] args) {
+        gameLogic.setDeck(deck);
         if (isRunning) {
             System.out.println("Server is already running");
             return;
@@ -76,7 +81,7 @@ public class Server {
                         handleMove(message);
                         broadcastGameState();
                     } else if (message.startsWith("card:")) {
-                        broadcastCardState(message);
+                        handleCardMove(message);
                     } else if (protocol.type().equals(ProtocolType.CLOSE)) {
                         synchronized (clients) {
                             clients.remove(clientSocket);
@@ -115,6 +120,28 @@ public class Server {
             } catch (IOException ee) {
                 System.out.println("Error closing client socket: " + ee.getMessage());
             }
+        }
+    }
+
+    private static void handleCardMove(String message) {
+        String[] parts = message.split(":");
+        String value = parts[1].split("&")[0];
+        String color = parts[1].split("&")[1];
+        CardColor cardColor = switch (color) {
+            case "0xff0000ff" -> CardColor.RED;
+            case "0x0000ffff" -> CardColor.BLUE;
+            case "0xffff00ff" -> CardColor.YELLOW;
+            case "0x008000ff" -> CardColor.GREEN;
+            default -> throw new IllegalStateException("Unexpected value: " + color);
+        };
+        boolean result = gameLogic.handleMove(new Card(Integer.parseInt(value), CardColor.valueOf(String.valueOf(cardColor))), GameState.currentCard);
+        if (result) {
+            broadcastCardState(message);
+        } else {
+            GameState.order = (GameState.order == 1) ? 2 : 1;
+            GameState.isStart = !GameState.isStart;
+            broadcastGameState();
+            System.out.println("WRONG MOVE!!!");
         }
     }
 
@@ -186,6 +213,7 @@ public class Server {
                             Protocol message = new Protocol(ProtocolType.UI, "start");
                             writer.write(Converter.encode(message));
 
+                            Thread.sleep(100);
                             StringBuilder cardInfo = new StringBuilder();
                             for (int i = 0; i < 7; i++) {
                                 Card card = deck.getCards().remove();
