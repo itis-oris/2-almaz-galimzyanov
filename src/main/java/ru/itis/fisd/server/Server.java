@@ -19,12 +19,15 @@ import java.util.concurrent.Executors;
 @Getter
 public class Server {
 
-    public static final int SERVER_PORT = 50000;
+    public static int SERVER_PORT = 50000;
     private static boolean isRunning = false;
     private static final List<Socket> clients = new ArrayList<>();
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     public static void main(String[] args) {
+        if (args.length > 0) {
+            SERVER_PORT = Integer.parseInt(args[0]) > 0 ? Integer.parseInt(args[0]) : SERVER_PORT;
+        }
         if (isRunning) {
             System.out.println("Server is already running");
             return;

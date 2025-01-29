@@ -11,13 +11,15 @@ import java.io.IOException;
 @Getter
 public class Game {
 
-    private static final int SERVER_PORT = 50000;
+    private static int SERVER_PORT = 50000;
     private static MainFX mainFX;
     public static Client client;
 
-    public Game() throws IOException {
+    public Game(int port) throws IOException {
 
         boolean isSuccess = false;
+        System.out.println("SELECTED PORT: " + port);
+        SERVER_PORT = port > 0 ? port : SERVER_PORT;
         try {
 
             client = new Client();

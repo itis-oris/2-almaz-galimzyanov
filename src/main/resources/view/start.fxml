@@ -7,7 +7,7 @@
     <Label text="START" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="60"  alignment="CENTER"/>
 
     <Label text="Enter port" prefWidth="60" GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="CENTER"/>
-    <TextField prefWidth="90" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+    <TextField fx:id="port" prefWidth="90" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
     <Button text="Start" prefWidth="90" fx:id="start" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
 

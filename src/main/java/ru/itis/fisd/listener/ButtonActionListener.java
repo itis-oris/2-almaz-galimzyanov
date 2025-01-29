@@ -6,6 +6,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import ru.itis.fisd.app.Game;
 import ru.itis.fisd.client.gui.controller.SceneController;
@@ -14,13 +15,22 @@ import ru.itis.fisd.service.AccountService;
 
 import java.io.IOException;
 
-@AllArgsConstructor
-@NoArgsConstructor
 public class ButtonActionListener {
 
     private final AccountService userService = new AccountService();
     private TextField username;
     private PasswordField passwordField;
+    @Setter
+    private int port;
+
+    public ButtonActionListener() {
+    }
+
+    public ButtonActionListener(TextField username, PasswordField passwordField) {
+        this.passwordField = passwordField;
+        this.username = username;
+    }
+
 
     public void handleButtonAction(Button button) {
         String text = button.getText();
@@ -73,7 +83,7 @@ public class ButtonActionListener {
 
             case "Start" -> {
                 try {
-                    new Game();
+                    new Game(port);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
