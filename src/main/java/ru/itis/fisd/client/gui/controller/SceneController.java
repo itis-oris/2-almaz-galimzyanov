@@ -1,5 +1,6 @@
 package ru.itis.fisd.client.gui.controller;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 
@@ -23,6 +24,6 @@ public class SceneController {
     }
 
     public static void activate(String name){
-        main.setRoot(screenMap.get(name));
+        Platform.runLater(() -> main.setRoot(screenMap.get(name)));
     }
 }
