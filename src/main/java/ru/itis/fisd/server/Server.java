@@ -13,8 +13,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Getter
 public class Server {
@@ -22,21 +20,21 @@ public class Server {
     public static int SERVER_PORT = 50000;
     private static boolean isRunning = false;
     private static final List<Socket> clients = new ArrayList<>();
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     public static void main(String[] args) {
-        if (args.length > 0) {
-            SERVER_PORT = Integer.parseInt(args[0]) > 0 ? Integer.parseInt(args[0]) : SERVER_PORT;
-        }
         if (isRunning) {
             System.out.println("Server is already running");
             return;
         }
 
+        if (args.length > 0) {
+            SERVER_PORT = Integer.parseInt(args[0]) > 0 ? Integer.parseInt(args[0]) : SERVER_PORT;
+        }
+
         System.out.println("Starting server...");
-        isRunning = true;
 
         try (ServerSocket server = new ServerSocket(SERVER_PORT)) {
+            isRunning = true;
             System.out.println("Server started on port " + SERVER_PORT);
 
             while (isRunning) {
@@ -48,9 +46,9 @@ public class Server {
                 }
 
                 System.out.println("Client connected: " + clientSocket);
-                printClientList(server);
+                printClientList();
 
-                new Thread(() -> handleClient(clientSocket, server)).start();
+                new Thread(() -> handleClientMessages(clientSocket, server)).start();
             }
 
         } catch (IOException e) {
@@ -61,8 +59,7 @@ public class Server {
         }
     }
 
-    private static void handleClient(Socket clientSocket, ServerSocket serverSocket) {
-        boolean res = true;
+    private static void handleClientMessages(Socket clientSocket, ServerSocket serverSocket) {
         try (InputStream input = clientSocket.getInputStream()) {
             byte[] buffer = new byte[1024];
             while (true) {
@@ -77,29 +74,26 @@ public class Server {
                         broadcastGameState();
                     } else if (message.startsWith("card:")) {
                         broadcastCardState(message);
+                    } else if (message.startsWith("close")) {
+                        synchronized (clients) {
+                            clients.remove(clientSocket);
+                            if (clients.isEmpty()) {
+                                System.out.println("No clients connected");
+                                isRunning = false;
+                                try {
+                                    serverSocket.close();
+                                } catch (IOException er) {
+                                    throw new RuntimeException(er);
+                                }
+                            }
+                            System.out.println("Client disconnected: " + clientSocket);
+                            printClientList();
+                        }
                     }
                 }
-
             }
         } catch (IOException e) {
-            res = false;
             System.out.println("Client connection error: " + e.getMessage());
-
-            synchronized (clients) {
-                clients.remove(clientSocket);
-                if (clients.isEmpty()) {
-                    System.out.println("No clients connected");
-                    isRunning = false;
-                    try {
-                        serverSocket.close();
-                    } catch (IOException er) {
-                        throw new RuntimeException(er);
-                    }
-                }
-            }
-
-            System.out.println("Client disconnected: " + clientSocket);
-            printClientList(null);
 
             try {
                 clientSocket.close();
@@ -108,9 +102,6 @@ public class Server {
             }
         }
     }
-
-
-
 
     private static void handleMove(String message) {
         String[] parts = message.split(":");
@@ -158,20 +149,16 @@ public class Server {
         }
     }
 
-
-
-    private static void printClientList(ServerSocket server) {
+    private static void printClientList() {
         synchronized (clients) {
             System.out.println("Currently connected clients (" + clients.size() + "):");
             for (Socket client : clients) {
                 System.out.println("- " + client);
             }
-
             try {
-                // Проверяем, что сокет открыт
                 if (clients.size() == 1) {
                     for (Socket client : clients) {
-                        if (!client.isClosed()) {  // Проверка на закрытость сокета
+                        if (!client.isClosed()) {
                             OutputStream writer = client.getOutputStream();
                             Protocol message = new Protocol(ProtocolType.INFO, "wait");
                             writer.write(Converter.encode(message));
@@ -179,7 +166,7 @@ public class Server {
                     }
                 } else if (clients.size() == 2) {
                     for (Socket client : clients) {
-                        if (!client.isClosed()) {  // Проверка на закрытость сокета
+                        if (!client.isClosed()) {
                             OutputStream writer = client.getOutputStream();
                             Protocol message = new Protocol(ProtocolType.INFO, "start");
                             writer.write(Converter.encode(message));
@@ -191,5 +178,4 @@ public class Server {
             }
         }
     }
-
 }
