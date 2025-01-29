@@ -15,8 +15,8 @@
             GridPane.columnIndex="0" GridPane.rowIndex="1"/>
 
     <!-- Текущая карта -->
-    <Label fx:id="current" text="current card"
-           prefWidth="100" prefHeight="200"
+    <Label fx:id="current"
+           prefWidth="110" prefHeight="150" textAlignment="CENTER"
            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
     <!-- Кнопка DO -->
