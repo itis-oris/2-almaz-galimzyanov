@@ -1,24 +1,28 @@
 package ru.itis.fisd.app;
 
 import javafx.application.Application;
+import lombok.Getter;
 import ru.itis.fisd.client.Client;
 import ru.itis.fisd.client.gui.MainFX;
 import ru.itis.fisd.server.Server;
 
 import java.io.IOException;
 
+@Getter
 public class Game {
 
     private static final int SERVER_PORT = 50000;
     private static MainFX mainFX;
+    public static Client client;
 
     public Game() throws IOException {
 
         boolean isSuccess = false;
         try {
 
-            Client client = new Client();
+            client = new Client();
             client.connectToServer("localhost", SERVER_PORT);
+            client.setOrder(2);
 
             mainFX.setClientSocket(client.getSocket());
             mainFX.todo();
@@ -33,8 +37,9 @@ public class Game {
             }
         } finally {
             if (!isSuccess) {
-                Client client = new Client();
+                client = new Client();
                 client.connectToServer("localhost", SERVER_PORT);
+                client.setOrder(1);
 
                 mainFX.setClientSocket(client.getSocket());
                 mainFX.todo();
