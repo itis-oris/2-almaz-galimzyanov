@@ -18,40 +18,35 @@ public class Game {
     public Game(int port) throws IOException {
 
         boolean isSuccess = false;
-        System.out.println("SELECTED PORT: " + port);
         SERVER_PORT = port > 0 ? port : SERVER_PORT;
+
         try {
-
-            client = new Client();
-            client.connectToServer("localhost", SERVER_PORT);
-            client.setOrder(2);
-
-            mainFX.setClientSocket(client.getSocket());
-            mainFX.todo();
-            System.out.println("SAODKASODKDO" + mainFX.getClientSocket());
+            clientConnection(2);
             isSuccess = true;
         } catch (Exception e) {
-            new Thread(() -> Server.main(new String[]{String.valueOf(SERVER_PORT)})).start();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException er) {
-                Thread.currentThread().interrupt();
-            }
+            serverStart();
         } finally {
             if (!isSuccess) {
-                client = new Client();
-                client.connectToServer("localhost", SERVER_PORT);
-                client.setOrder(1);
-
-                mainFX.setClientSocket(client.getSocket());
-                mainFX.todo();
-
-                System.out.println("SAODKASODKDO" + mainFX.getClientSocket());
+                clientConnection(1);
             }
-
         }
+    }
 
+    private static void serverStart() {
+        new Thread(() -> Server.main(new String[]{String.valueOf(SERVER_PORT)})).start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException er) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
+    private static void clientConnection(int order) throws IOException {
+        client = new Client();
+        client.connectToServer("localhost", SERVER_PORT);
+        client.setOrder(order);
+        mainFX.setClientSocket(client.getSocket());
+        mainFX.todo();
     }
 
     public static void main(String[] args) {
