@@ -19,10 +19,9 @@ public class StartFXController {
     public void initialize() {
         buttonActionListener = new ButtonActionListener();
         System.out.println(port);
-        start.setOnAction(_ ->
-        {buttonActionListener.setPort(Integer.parseInt(port.getText()));
+        start.setOnAction(_ -> {
+            buttonActionListener.setPort(Integer.parseInt(port.getText()));
             buttonActionListener.handleButtonAction(start);
-
         });
     }
 }
