@@ -66,7 +66,7 @@ public class MainFX extends Application {
         myStage.setOnCloseRequest(_ -> {
             if (clientSocket != null && !clientSocket.isClosed()) {
                 try {
-                    client.sendMessage(new Protocol(ProtocolType.INFO, "close"));
+                    client.sendMessage(new Protocol(ProtocolType.CLOSE, ""));
                     clientSocket.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
