@@ -34,7 +34,7 @@ public class MainFX extends Application {
             Parent root = loader.load();
 
             // Setup the scene
-            Scene scene = new Scene(root, 460, 400);
+            Scene scene = new Scene(root, 460, 480);
             SceneController controller = new SceneController(scene);
             addScenes(controller);
 
