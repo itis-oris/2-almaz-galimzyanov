@@ -14,15 +14,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import lombok.Getter;
-import ru.itis.fisd.app.Game;
 import ru.itis.fisd.entity.Card;
-import ru.itis.fisd.entity.CardColor;
 import ru.itis.fisd.entity.Deck;
 import ru.itis.fisd.entity.Player;
-import ru.itis.fisd.listener.ButtonActionListener;
 import ru.itis.fisd.listener.GameActionListener;
-
-import java.util.Random;
 
 public class GameFXController {
 
@@ -34,10 +29,19 @@ public class GameFXController {
     }
 
     @FXML
-    private HBox buttonRow; // Контейнер для строки с кнопками
+    public Button uno;
 
     @FXML
-    private Button coloda;
+    public Label enemy;
+
+    @FXML
+    public Label cards;
+
+    @FXML
+    private HBox buttonRow;
+
+    @FXML
+    private Button deck;
 
     @FXML
     private Label current;
@@ -47,18 +51,13 @@ public class GameFXController {
 
     @FXML
     public void initialize() {
-        buttonActionListener = new GameActionListener(this); // Передаём текущий контроллер
+        initStyle();
+
+        buttonActionListener = new GameActionListener(this);
 
         int totalButtons = 7;
         Player player = new Player();
 
-        coloda.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-        current.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-        current.setFont(Font.font("Arial", FontWeight.BOLD, 128));
-        current.setStyle("-fx-font-size: 400%;");
-        current.setTextFill(Color.WHITE);
-        current.setPrefWidth(80);
-        current.setPrefHeight(150);
         for (int i = 0; i < totalButtons; i++) {
             Card card = getRandomCard();
             player.getPlayerCards().add(card);
@@ -68,6 +67,15 @@ public class GameFXController {
 
     }
 
+    private void initStyle() {
+        deck.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        current.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+        current.setFont(Font.font("Arial", FontWeight.BOLD, 128));
+        current.setStyle("-fx-font-size: 400%;");
+        current.setTextFill(Color.WHITE);
+        current.setPrefWidth(80);
+        current.setPrefHeight(150);
+    }
 
     private static Button getButton(Card card, Player player) {
         Button button = new Button(String.valueOf(card.value()));
@@ -91,6 +99,7 @@ public class GameFXController {
     }
 
     private Card getRandomCard() {
+        System.out.println("DECK SIZE: " + Deck.cards.size());
         return Deck.cards.remove();
     }
 
