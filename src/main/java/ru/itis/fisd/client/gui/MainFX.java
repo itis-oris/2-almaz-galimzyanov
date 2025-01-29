@@ -20,32 +20,29 @@ import java.util.Objects;
 public class MainFX extends Application {
 
     private Socket clientSocket;
-
     private Client client;
-    private static Stage ss;
+    private static Stage myStage;
 
     @Override
     public void start(Stage stage) {
         DBConnection.getInstance();
 
         try {
-            // Load the FXML file
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
             Parent root = loader.load();
 
-            // Setup the scene
             Scene scene = new Scene(root, 460, 480);
             SceneController controller = new SceneController(scene);
             addScenes(controller);
 
             stage.setTitle("UNO Game");
             stage.setScene(scene);
-            ss = stage;
+            myStage = stage;
 
             stage.show();
         } catch (IOException e) {
             System.err.println("Failed to load FXML: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -64,10 +61,7 @@ public class MainFX extends Application {
     }
 
     public void todo() {
-        System.out.println("TESTETSTETST" + clientSocket);
-        ss.setOnCloseRequest(event -> {
-            System.out.println("Closing");
-            System.out.println(clientSocket);
+        myStage.setOnCloseRequest(_ -> {
             if (clientSocket != null && !clientSocket.isClosed()) {
                 try {
                     clientSocket.close();
@@ -75,7 +69,6 @@ public class MainFX extends Application {
                     throw new RuntimeException(e);
                 }
                 DBConnection.getInstance().destroy();
-                System.out.println("Connection closed by MainFX.");
             }
             System.exit(0);
         });
