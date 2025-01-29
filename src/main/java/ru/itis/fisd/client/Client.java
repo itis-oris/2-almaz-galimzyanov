@@ -24,20 +24,21 @@ public class Client {
     private Player player;
     private int order;
 
-    public void connectToServer(String host, int port) {
+    public void connectToServer(String host, int port) throws IOException {
         try {
             System.out.println("Connecting...");
             socket = new Socket(host, port);
             System.out.println("Client connected to server: " + host + ":" + port);
 
-            new Thread(this::handleMessages).start();
+            new Thread(this::handleServerMessages).start();
 
         } catch (IOException e) {
             System.out.println("Failed to connect to server: " + e.getMessage());
+            throw e;
         }
     }
 
-    private void handleMessages() {
+    private void handleServerMessages() {
         try (InputStream input = socket.getInputStream()) {
             byte[] buffer = new byte[1024];
             while (!socket.isClosed()) {
