@@ -46,6 +46,7 @@ public class Game {
         client.connectToServer("localhost", SERVER_PORT);
         client.setOrder(order);
         mainFX.setClientSocket(client.getSocket());
+        mainFX.setClient(client);
         mainFX.todo();
     }
 

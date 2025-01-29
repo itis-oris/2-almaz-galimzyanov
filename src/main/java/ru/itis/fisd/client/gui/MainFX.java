@@ -10,6 +10,8 @@ import lombok.Setter;
 import ru.itis.fisd.client.Client;
 import ru.itis.fisd.client.gui.controller.SceneController;
 import ru.itis.fisd.database.DBConnection;
+import ru.itis.fisd.protocol.Protocol;
+import ru.itis.fisd.protocol.ProtocolType;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -64,6 +66,7 @@ public class MainFX extends Application {
         myStage.setOnCloseRequest(_ -> {
             if (clientSocket != null && !clientSocket.isClosed()) {
                 try {
+                    client.sendMessage(new Protocol(ProtocolType.INFO, "close"));
                     clientSocket.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
