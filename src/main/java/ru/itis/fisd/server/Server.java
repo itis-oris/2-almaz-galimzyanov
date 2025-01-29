@@ -2,6 +2,8 @@ package ru.itis.fisd.server;
 
 import lombok.Getter;
 import ru.itis.fisd.app.GameState;
+import ru.itis.fisd.entity.Card;
+import ru.itis.fisd.entity.Deck;
 import ru.itis.fisd.protocol.Converter;
 import ru.itis.fisd.protocol.Protocol;
 import ru.itis.fisd.protocol.ProtocolType;
@@ -20,6 +22,7 @@ public class Server {
     public static int SERVER_PORT = 50000;
     private static boolean isRunning = false;
     private static final List<Socket> clients = new ArrayList<>();
+    private static final Deck deck = new Deck();
 
     public static void main(String[] args) {
         if (isRunning) {
@@ -74,7 +77,7 @@ public class Server {
                         broadcastGameState();
                     } else if (message.startsWith("card:")) {
                         broadcastCardState(message);
-                    } else if (message.startsWith("close")) {
+                    } else if (protocol.type().equals(ProtocolType.CLOSE)) {
                         synchronized (clients) {
                             clients.remove(clientSocket);
                             if (clients.isEmpty()) {
@@ -88,6 +91,18 @@ public class Server {
                             }
                             System.out.println("Client disconnected: " + clientSocket);
                             printClientList();
+                        }
+                    } else if (protocol.type().equals(ProtocolType.GET)) {
+                        for (Socket client : clients) {
+                            System.out.println("DECK SIZE: " + deck.getCards().size());
+                            Card card = deck.getCards().remove();
+                            String a = card.value() + ":" + card.color();
+                            if (client.toString().equals(message)) {
+                                OutputStream writer = client.getOutputStream();
+                                Protocol msg = new Protocol(ProtocolType.GET, a);
+                                writer.write(Converter.encode(msg));
+                                writer.flush();
+                            }
                         }
                     }
                 }
@@ -160,7 +175,7 @@ public class Server {
                     for (Socket client : clients) {
                         if (!client.isClosed()) {
                             OutputStream writer = client.getOutputStream();
-                            Protocol message = new Protocol(ProtocolType.INFO, "wait");
+                            Protocol message = new Protocol(ProtocolType.UI, "wait");
                             writer.write(Converter.encode(message));
                         }
                     }
@@ -168,12 +183,28 @@ public class Server {
                     for (Socket client : clients) {
                         if (!client.isClosed()) {
                             OutputStream writer = client.getOutputStream();
-                            Protocol message = new Protocol(ProtocolType.INFO, "start");
+                            Protocol message = new Protocol(ProtocolType.UI, "start");
                             writer.write(Converter.encode(message));
+
+                            StringBuilder cardInfo = new StringBuilder();
+                            for (int i = 0; i < 7; i++) {
+                                Card card = deck.getCards().remove();
+                                if (cardInfo.isEmpty()){
+                                    cardInfo.append(card.value()).append(":").append(card.color());
+                                } else {
+                                    cardInfo.append("&").append(card.value()).append(":").append(card.color());
+                                }
+                            }
+                            Protocol cardMessage = new Protocol(ProtocolType.GET, cardInfo.toString());
+                            writer.write(Converter.encode(cardMessage));
+                            writer.flush();
+                            Thread.sleep(5);
                         }
+
+
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
