@@ -38,8 +38,7 @@ public class LoginFxController {
     public void initialize() {
         buttonActionListener = new ButtonActionListener(nameField, passwordField);
 
-        login.setOnAction(_ ->
-        {
+        login.setOnAction(_ -> {
             if (checkUser()) {
                 buttonActionListener.handleButtonAction(login);
             } else {
@@ -52,7 +51,6 @@ public class LoginFxController {
     }
 
     private boolean checkUser() {
-
         Optional<AccountEntity> account = service.getByName(nameField.getText());
         System.out.println(account);
         if (account.isPresent()) {
@@ -60,8 +58,6 @@ public class LoginFxController {
             String password = passwordField.getText();
             return bCrypt.matches(password, account.get().getPassword());
         }
-
         return false;
-
     }
 }
