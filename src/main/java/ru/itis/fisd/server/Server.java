@@ -1,6 +1,7 @@
 package ru.itis.fisd.server;
 
 import lombok.Getter;
+import ru.itis.fisd.app.GameState;
 import ru.itis.fisd.protocol.Converter;
 import ru.itis.fisd.protocol.Protocol;
 import ru.itis.fisd.protocol.ProtocolType;
@@ -58,41 +59,102 @@ public class Server {
     }
 
     private static void handleClient(Socket clientSocket, ServerSocket serverSocket) {
-        threadPool.execute(() -> {
-            try (InputStream input = clientSocket.getInputStream()) {
-                byte[] buffer = new byte[1024];
-                while (input.read(buffer) != -1) {
+        boolean res = true;
+        try (InputStream input = clientSocket.getInputStream()) {
+            byte[] buffer = new byte[1024];
+            while (true) {
+                if (input.read(buffer) != -1) {
                     Protocol protocol = Converter.decode(buffer);
                     String message = protocol.body();
                     System.out.println("Received from client: " + message);
-                }
-            } catch (IOException e) {
-                System.out.println("Client connection error: " + e.getMessage());
-            } finally {
-                synchronized (clients) {
-                    clients.remove(clientSocket);
-                    if (clients.isEmpty()) {
-                        System.out.println("No clients connected");
-                        isRunning = false;
-                        try {
-                            serverSocket.close();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
 
+                    System.out.println(message);
+                    if (message.startsWith("move:")) {
+                        handleMove(message);
+                        broadcastGameState();
+                    } else if (message.startsWith("card:")) {
+                        broadcastCardState(message);
                     }
                 }
-                System.out.println("Client disconnected: " + clientSocket);
-                printClientList(null);
 
-                try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    System.out.println("Error closing client socket: " + e.getMessage());
+            }
+        } catch (IOException e) {
+            res = false;
+            System.out.println("Client connection error: " + e.getMessage());
+
+            synchronized (clients) {
+                clients.remove(clientSocket);
+                if (clients.isEmpty()) {
+                    System.out.println("No clients connected");
+                    isRunning = false;
+                    try {
+                        serverSocket.close();
+                    } catch (IOException er) {
+                        throw new RuntimeException(er);
+                    }
                 }
             }
-        });
+
+            System.out.println("Client disconnected: " + clientSocket);
+            printClientList(null);
+
+            try {
+                clientSocket.close();
+            } catch (IOException ee) {
+                System.out.println("Error closing client socket: " + ee.getMessage());
+            }
+        }
     }
+
+
+
+
+    private static void handleMove(String message) {
+        String[] parts = message.split(":");
+        int playerOrder = Integer.parseInt(parts[1]);
+        String move = parts[2];
+
+        System.out.println("Player " + playerOrder + " made move: " + move);
+
+        GameState.order = (playerOrder == 1) ? 2 : 1;
+        GameState.isStart = !GameState.isStart;
+    }
+
+    private static void broadcastGameState() {
+        String updateMessage = "updateState:order=" + GameState.order + ",isStart=" + GameState.isStart;
+        synchronized (clients) {
+            for (Socket client : clients) {
+                try {
+                    if (!client.isClosed()) {
+                        OutputStream writer = client.getOutputStream();
+                        Protocol message = new Protocol(ProtocolType.INFO, updateMessage);
+                        writer.write(Converter.encode(message));
+                        writer.flush();
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error sending game state to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    private static void broadcastCardState(String msg) {
+        synchronized (clients) {
+            for (Socket client : clients) {
+                try {
+                    if (!client.isClosed()) {
+                        OutputStream writer = client.getOutputStream();
+                        Protocol message = new Protocol(ProtocolType.GAME, msg);
+                        writer.write(Converter.encode(message));
+                        writer.flush();
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error sending game card to client: " + e.getMessage());
+                }
+            }
+        }
+    }
+
 
 
     private static void printClientList(ServerSocket server) {
@@ -103,17 +165,22 @@ public class Server {
             }
 
             try {
+                // Проверяем, что сокет открыт
                 if (clients.size() == 1) {
                     for (Socket client : clients) {
-                        OutputStream writer = client.getOutputStream();
-                        Protocol message = new Protocol(ProtocolType.INFO, "wait");
-                        writer.write(Converter.encode(message));
+                        if (!client.isClosed()) {  // Проверка на закрытость сокета
+                            OutputStream writer = client.getOutputStream();
+                            Protocol message = new Protocol(ProtocolType.INFO, "wait");
+                            writer.write(Converter.encode(message));
+                        }
                     }
                 } else if (clients.size() == 2) {
                     for (Socket client : clients) {
-                        OutputStream writer = client.getOutputStream();
-                        Protocol message = new Protocol(ProtocolType.INFO, "start");
-                        writer.write(Converter.encode(message));
+                        if (!client.isClosed()) {  // Проверка на закрытость сокета
+                            OutputStream writer = client.getOutputStream();
+                            Protocol message = new Protocol(ProtocolType.INFO, "start");
+                            writer.write(Converter.encode(message));
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -121,4 +188,5 @@ public class Server {
             }
         }
     }
+
 }
