@@ -1,14 +1,19 @@
 package ru.itis.fisd.client;
 
+import javafx.application.Platform;
 import javafx.scene.paint.Paint;
 import lombok.Getter;
 import lombok.Setter;
 import ru.itis.fisd.app.GameState;
 import ru.itis.fisd.client.gui.controller.GameFXController;
 import ru.itis.fisd.client.gui.controller.SceneController;
+import ru.itis.fisd.entity.Card;
+import ru.itis.fisd.entity.CardColor;
+import ru.itis.fisd.entity.Deck;
 import ru.itis.fisd.entity.Player;
 import ru.itis.fisd.protocol.Converter;
 import ru.itis.fisd.protocol.Protocol;
+import ru.itis.fisd.protocol.ProtocolType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +26,7 @@ import java.util.Arrays;
 public class Client {
 
     private Socket socket;
+    private Deck deck;
     private Player player;
     private int order;
 
@@ -28,6 +34,7 @@ public class Client {
         try {
             System.out.println("Connecting...");
             socket = new Socket(host, port);
+            player = new Player();
             System.out.println("Client connected to server: " + host + ":" + port);
 
             new Thread(this::handleServerMessages).start();
@@ -66,14 +73,23 @@ public class Client {
                         String value = parts[0];
                         String color = parts[1];
                         GameFXController.getInstance().setDeckCard(value, Paint.valueOf(color));
-                    } else {
+                    } else if (protocol.type().equals(ProtocolType.UI)) {
                         switch (message) {
-                            case "start" -> SceneController.activate("game");
-                            case "wait" -> {
-                                System.out.println("Waiting for message...");
-                                SceneController.activate("waiting_room");
+                            case "start" -> {
+                                GameFXController.getInstance().setPlayer(player);
+                                SceneController.activate("game");
                             }
+                            case "wait" -> SceneController.activate("waiting_room");
                         }
+                    } else if (protocol.type().equals(ProtocolType.GET)) {
+                        String[] parts = message.split("&");
+                        for (String part : parts) {
+                            String[] values = part.split(":");
+                            Card card = new Card(Integer.parseInt(values[0]), CardColor.valueOf(values[1]));
+                            player.getPlayerCards().add(card);
+                            System.out.println(player.getPlayerCards());
+                        }
+                        Platform.runLater(() -> GameFXController.getInstance().updatePlayerCards(player.getPlayerCards()));
                     }
                 }
             }
