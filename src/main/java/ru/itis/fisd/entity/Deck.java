@@ -1,12 +1,16 @@
 package ru.itis.fisd.entity;
 
+import lombok.Getter;
+
 import java.util.*;
 
+@Getter
 public class Deck {
 
-    public static final Queue<Card> cards = new LinkedList<>();
+    private Queue<Card> cards;
 
-    static {
+    public Deck() {
+        cards = new LinkedList<>();
         List<Card> cardsList = new ArrayList<>();
         CardColor[] colors = {CardColor.RED, CardColor.BLUE, CardColor.GREEN, CardColor.YELLOW};
 
