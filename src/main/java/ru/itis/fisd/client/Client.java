@@ -9,7 +9,6 @@ import ru.itis.fisd.client.gui.controller.SceneController;
 import ru.itis.fisd.entity.Player;
 import ru.itis.fisd.protocol.Converter;
 import ru.itis.fisd.protocol.Protocol;
-import ru.itis.fisd.protocol.ProtocolType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,35 +21,19 @@ import java.util.Arrays;
 public class Client {
 
     private Socket socket;
-    private int order;
     private Player player;
+    private int order;
 
-    public void connectToServer(String host, int port) throws IOException {
+    public void connectToServer(String host, int port) {
         try {
+            System.out.println("Connecting...");
             socket = new Socket(host, port);
             System.out.println("Client connected to server: " + host + ":" + port);
-
-            new Thread(() -> {
-                try (OutputStream outputStream = socket.getOutputStream()) {
-                    while (!socket.isClosed()) {
-                        Protocol protocol = new Protocol(ProtocolType.PING, "ping");
-                        byte[] message = Converter.encode(protocol);
-                        outputStream.write(message);
-                        outputStream.flush();
-                        Thread.sleep(5000); // Отправляем "пинг" каждые 5 секунд
-                    }
-                } catch (IOException | InterruptedException e) {
-                    System.out.println("Ping error: " + e.getMessage());
-                    Thread.currentThread().interrupt();
-                }
-            }).start();
-
 
             new Thread(this::handleMessages).start();
 
         } catch (IOException e) {
             System.out.println("Failed to connect to server: " + e.getMessage());
-            throw e;
         }
     }
 
@@ -65,7 +48,6 @@ public class Client {
                     System.out.println("Received from server: " + message);
 
                     if (message.startsWith("updateState")) {
-                        // Разбираем новое состояние, например: "updateState:order=2,isStart=true"
                         String[] parts = message.split(":")[1].split(",");
                         for (String part : parts) {
                             String[] keyValue = part.split("=");
@@ -83,8 +65,7 @@ public class Client {
                         String value = parts[0];
                         String color = parts[1];
                         GameFXController.getInstance().setDeckCard(value, Paint.valueOf(color));
-                    }
-                    else {
+                    } else {
                         switch (message) {
                             case "start" -> SceneController.activate("game");
                             case "wait" -> {
@@ -101,15 +82,12 @@ public class Client {
     }
 
 
-    // Новый метод для отправки сообщений на сервер
     public void sendMessage(Protocol message) {
         try {
             OutputStream output = socket.getOutputStream();
-            // Кодируем сообщение в Protocol, если нужно
             byte[] encodedMessage = Converter.encode(message);
-
-            output.write(encodedMessage);  // Отправляем данные
-            output.flush();  // Обязательно сбрасываем поток для отправки данных
+            output.write(encodedMessage);
+            output.flush();
             System.out.println("Message sent to server: " + message);
         } catch (IOException e) {
             System.out.println("Error sending message: " + e.getMessage());
