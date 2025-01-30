@@ -1,6 +1,5 @@
 package ru.itis.fisd.listener;
 
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 import ru.itis.fisd.app.Game;
 import ru.itis.fisd.app.GameLogic;
@@ -63,4 +62,10 @@ public class GameActionListener {
         }
     }
 
+    public void handleDeck() {
+        Client client = Game.client;
+        if (GameState.order == client.getOrder()) {
+            client.sendMessage(new Protocol(ProtocolType.GET, client.getSocket().toString()));
+        }
+    }
 }

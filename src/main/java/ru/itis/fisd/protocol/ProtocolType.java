@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ProtocolType {
 
-    CLOSE("0"), UI("1"), INFO("10"), ERROR("-1"), GAME("2"), GET("111"), DELETE("666");
+    CLOSE("0"), UI("1"), INFO("10"), ERROR("-1"), GAME("2"), GET("111"), DELETE("666"), WIN("777");
 
     private final String value;
 

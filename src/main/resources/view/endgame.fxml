@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="ru.itis.fisd.client.gui.controller.EndGameFXController">
+
+    <!-- Pane для анимации падающих кругов (на весь экран) -->
+    <Pane fx:id="animationPane" prefWidth="600" prefHeight="400"/>
+
+    <!-- Контейнер с текстом и кнопкой, расположенный поверх Pane -->
+    <VBox alignment="CENTER" spacing="20">
+        <Label fx:id="winlost" prefWidth="115"/>
+        <Button fx:id="back" text="BACK" prefHeight="100" prefWidth="200"/>
+    </VBox>
+
+</StackPane>

@@ -5,6 +5,7 @@ import javafx.scene.paint.Paint;
 import lombok.Getter;
 import lombok.Setter;
 import ru.itis.fisd.app.GameState;
+import ru.itis.fisd.client.gui.controller.EndGameFXController;
 import ru.itis.fisd.client.gui.controller.GameFXController;
 import ru.itis.fisd.client.gui.controller.SceneController;
 import ru.itis.fisd.entity.Card;
@@ -90,12 +91,25 @@ public class Client {
                             case "wait" -> SceneController.activate("waiting_room");
                         }
                     } else if (protocol.type().equals(ProtocolType.GET)) {
+
                         String[] parts = message.split("&");
-                        for (String part : parts) {
-                            String[] values = part.split(":");
-                            Card card = new Card(Integer.parseInt(values[0]), CardColor.valueOf(values[1]));
-                            player.getPlayerCards().add(card);
-                            System.out.println(player.getPlayerCards());
+                        System.out.println(Arrays.toString(parts));
+                        if (parts.length == 1) {
+                            for (String part : parts) {
+                                String[] values = part.split(":");
+                                if (Integer.parseInt(values[0]) == order) {
+                                    Card card = new Card(Integer.parseInt(values[1]), CardColor.valueOf(values[2]));
+                                    player.getPlayerCards().add(card);
+                                    System.out.println(player.getPlayerCards());
+                                }
+                            }
+                        } else {
+                            for (String part : parts) {
+                                String[] values = part.split(":");
+                                Card card = new Card(Integer.parseInt(values[0]), CardColor.valueOf(values[1]));
+                                player.getPlayerCards().add(card);
+                                System.out.println(player.getPlayerCards());
+                            }
                         }
                         Platform.runLater(() -> GameFXController.getInstance().updatePlayerCards(player.getPlayerCards()));
                     } else if (protocol.type().equals(ProtocolType.DELETE)) {
@@ -112,9 +126,18 @@ public class Client {
                             System.out.println("BEF " + player.getPlayerCards());
                             System.out.println("CARDDDDD " + card);
                             player.getPlayerCards().remove(card);
-                            GameFXController.getInstance().removeCard(card);
+                            GameFXController.getInstance().updatePlayerCards(player.getPlayerCards());
                             System.out.println("AFT" + player.getPlayerCards());
+                            if (player.getPlayerCards().isEmpty()) {
+                                sendMessage(new Protocol(ProtocolType.WIN, String.valueOf(order)));
+                            }
                         }
+                    } else if (protocol.type().equals(ProtocolType.WIN)) {
+//                        EndGameFXController controller = new EndGameFXController();
+                        EndGameFXController.getInstance().setWin(order, Integer.parseInt(message));
+                        SceneController.activate("endgame");
+                        sendMessage(new Protocol(ProtocolType.CLOSE, ""));
+                        socket.close();
                     }
                 }
             }

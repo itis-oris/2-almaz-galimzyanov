@@ -1,6 +1,5 @@
 package ru.itis.fisd.server;
 
-import javafx.scene.paint.Color;
 import lombok.Getter;
 import ru.itis.fisd.app.GameLogic;
 import ru.itis.fisd.app.GameState;
@@ -98,16 +97,26 @@ public class Server {
                             printClientList();
                         }
                     } else if (protocol.type().equals(ProtocolType.GET)) {
+                        System.out.println("DECK SIZE: " + deck.getCards().size());
+                        Card card = deck.getCards().remove();
+                        String a = GameState.order + ":" + card.value() + ":" + card.color();
                         for (Socket client : clients) {
-                            System.out.println("DECK SIZE: " + deck.getCards().size());
-                            Card card = deck.getCards().remove();
-                            String a = card.value() + ":" + card.color();
-                            if (client.toString().equals(message)) {
-                                OutputStream writer = client.getOutputStream();
-                                Protocol msg = new Protocol(ProtocolType.GET, a);
-                                writer.write(Converter.encode(msg));
-                                writer.flush();
-                            }
+                            System.out.println(client.toString());
+                            System.out.println("SEND NEW CARD");
+                            OutputStream writer = client.getOutputStream();
+                            Protocol msg = new Protocol(ProtocolType.GET, a);
+                            writer.write(Converter.encode(msg));
+                            writer.flush();
+                        }
+                    } else if (protocol.type().equals(ProtocolType.WIN)) {
+                        System.out.println("WINNER game: " + GameState.order + " player: " + protocol.body());
+                        for (Socket client : clients) {
+                            System.out.println(client.toString());
+                            System.out.println("SOLVE WINNER");
+                            OutputStream writer = client.getOutputStream();
+                            Protocol msg = new Protocol(ProtocolType.WIN, protocol.body());
+                            writer.write(Converter.encode(msg));
+                            writer.flush();
                         }
                     }
                 }
@@ -246,7 +255,7 @@ public class Server {
                             StringBuilder cardInfo = new StringBuilder();
                             for (int i = 0; i < 7; i++) {
                                 Card card = deck.getCards().remove();
-                                if (cardInfo.isEmpty()){
+                                if (cardInfo.isEmpty()) {
                                     cardInfo.append(card.value()).append(":").append(card.color());
                                 } else {
                                     cardInfo.append("&").append(card.value()).append(":").append(card.color());

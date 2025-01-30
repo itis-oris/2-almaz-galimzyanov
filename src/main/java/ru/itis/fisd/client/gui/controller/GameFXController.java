@@ -60,6 +60,8 @@ public class GameFXController {
         initStyle();
 
         buttonActionListener = new GameActionListener(this);
+
+        deck.setOnAction(_ -> buttonActionListener.handleDeck());
     }
 
     private void initStyle() {
@@ -94,11 +96,13 @@ public class GameFXController {
     }
 
     public void updatePlayerCards(List<Card> playerCards) {
-        buttonRow.getChildren().clear();
-        for (Card card : playerCards) {
-            Button button = getButton(card, player);
-            buttonRow.getChildren().add(button);
-        }
+        Platform.runLater(() -> {
+            buttonRow.getChildren().clear();
+            for (Card card : playerCards) {
+                Button button = getButton(card, player);
+                buttonRow.getChildren().add(button);
+            }
+        });
     }
 
     public void setDeckCard(String value, Paint color) {
@@ -109,17 +113,6 @@ public class GameFXController {
                 current.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             });
         }
-    }
-
-    public void removeCard(Card card) {
-        Platform.runLater(() -> buttonRow.getChildren().removeIf(node -> {
-            if (node instanceof Button button) {
-                String buttonValue = button.getText();
-                Paint buttonColor = button.getBackground().getFills().getFirst().getFill();
-                return buttonValue.equals(String.valueOf(card.value())) && buttonColor.equals(card.color().getColor());
-            }
-            return false;
-        }));
     }
 
 }
