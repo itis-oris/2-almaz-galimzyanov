@@ -30,7 +30,4 @@ public class Converter {
 
         return new Protocol(protocolType, new String(body));
     }
-
-
-
 }

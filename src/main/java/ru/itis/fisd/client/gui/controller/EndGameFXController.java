@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import lombok.Getter;
+
 import java.util.Random;
 
 public class EndGameFXController {

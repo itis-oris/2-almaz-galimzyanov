@@ -133,7 +133,6 @@ public class Client {
                             }
                         }
                     } else if (protocol.type().equals(ProtocolType.WIN)) {
-//                        EndGameFXController controller = new EndGameFXController();
                         EndGameFXController.getInstance().setWin(order, Integer.parseInt(message));
                         SceneController.activate("endgame");
                         sendMessage(new Protocol(ProtocolType.CLOSE, ""));

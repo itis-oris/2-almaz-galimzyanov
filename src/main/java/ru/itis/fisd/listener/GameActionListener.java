@@ -36,16 +36,16 @@ public class GameActionListener {
             case "0x0000ffff" -> CardColor.BLUE;
             case "0xffff00ff" -> CardColor.YELLOW;
             case "0x008000ff" -> CardColor.GREEN;
-            default -> throw new IllegalStateException("Unexpected value: " + button.getBackground().getFills().getFirst().getFill().toString());
+            default ->
+                    throw new IllegalStateException("Unexpected value: " + button.getBackground().getFills().getFirst().getFill().toString());
         };
-        Card card = new Card(Integer.parseInt(button.getText()),  cardColor);
+        Card card = new Card(Integer.parseInt(button.getText()), cardColor);
         if (!GameState.isStart) {
             System.out.println("CHECKING" + logic.handleMove(card, GameState.currentCard));
             if (client.getOrder() == GameState.order && logic.handleMove(card, GameState.currentCard)) {
                 gameFXController.setDeckCard(button.getText(),
                         button.getBackground().getFills().getFirst().getFill());
 
-                // Отправляем серверу не только действие, но и запрос на обновление состояния игры
                 client.sendMessage(new Protocol(ProtocolType.GAME, "move:" + client.getOrder() + ":" + button.getText()));
                 client.sendMessage(new Protocol(ProtocolType.GAME, "card:" + button.getText() + "&" + button.getBackground().getFills().getFirst().getFill()));
             }
@@ -55,7 +55,6 @@ public class GameActionListener {
                 gameFXController.setDeckCard(button.getText(),
                         button.getBackground().getFills().getFirst().getFill());
 
-                // Отправляем серверу не только действие, но и запрос на обновление состояния игры
                 client.sendMessage(new Protocol(ProtocolType.GAME, "move:" + client.getOrder() + ":" + button.getText()));
                 client.sendMessage(new Protocol(ProtocolType.GAME, "card:" + button.getText() + "&" + button.getBackground().getFills().getFirst().getFill()));
             }

@@ -16,7 +16,6 @@ public class GameLogic {
             GameState.currentCard = playerCard;
             return true;
         }
-        System.out.println("PROVERKA" + (playerCard.value() == currentCard.value() || playerCard.color() == currentCard.color()));
         return playerCard.value() == currentCard.value() || playerCard.color() == currentCard.color();
     }
 }
