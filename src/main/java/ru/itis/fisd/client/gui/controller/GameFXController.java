@@ -110,4 +110,16 @@ public class GameFXController {
             });
         }
     }
+
+    public void removeCard(Card card) {
+        Platform.runLater(() -> buttonRow.getChildren().removeIf(node -> {
+            if (node instanceof Button button) {
+                String buttonValue = button.getText();
+                Paint buttonColor = button.getBackground().getFills().getFirst().getFill();
+                return buttonValue.equals(String.valueOf(card.value())) && buttonColor.equals(card.color().getColor());
+            }
+            return false;
+        }));
+    }
+
 }

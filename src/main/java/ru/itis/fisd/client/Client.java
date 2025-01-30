@@ -98,6 +98,23 @@ public class Client {
                             System.out.println(player.getPlayerCards());
                         }
                         Platform.runLater(() -> GameFXController.getInstance().updatePlayerCards(player.getPlayerCards()));
+                    } else if (protocol.type().equals(ProtocolType.DELETE)) {
+                        String[] parts = message.split(":");
+                        if (Integer.parseInt(parts[0]) == order) {
+                            CardColor cardColor = switch (parts[2]) {
+                                case "RED" -> CardColor.RED;
+                                case "BLUE" -> CardColor.BLUE;
+                                case "YELLOW" -> CardColor.YELLOW;
+                                case "GREEN" -> CardColor.GREEN;
+                                default -> throw new IllegalStateException("Unexpected value: " + parts[2]);
+                            };
+                            Card card = new Card(Integer.parseInt(parts[1]), cardColor);
+                            System.out.println("BEF " + player.getPlayerCards());
+                            System.out.println("CARDDDDD " + card);
+                            player.getPlayerCards().remove(card);
+                            GameFXController.getInstance().removeCard(card);
+                            System.out.println("AFT" + player.getPlayerCards());
+                        }
                     }
                 }
             }

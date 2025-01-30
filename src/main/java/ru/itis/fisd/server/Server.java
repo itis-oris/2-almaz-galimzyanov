@@ -134,14 +134,43 @@ public class Server {
             case "0x008000ff" -> CardColor.GREEN;
             default -> throw new IllegalStateException("Unexpected value: " + color);
         };
-        boolean result = gameLogic.handleMove(new Card(Integer.parseInt(value), CardColor.valueOf(String.valueOf(cardColor))), GameState.currentCard);
+        Card playerCard = new Card(Integer.parseInt(value), CardColor.valueOf(String.valueOf(cardColor)));
+        boolean result = gameLogic.handleMove(playerCard, GameState.currentCard);
         if (result) {
+            System.out.println("DECK BEFORE: " + deck.getCards().size());
+            deck.getCards().add(playerCard);
+            System.out.println("DECK AFTER: " + deck.getCards().size());
             broadcastCardState(message);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            deleteCard((GameState.order == 1) ? 2 : 1, playerCard);
         } else {
             GameState.order = (GameState.order == 1) ? 2 : 1;
             GameState.isStart = !GameState.isStart;
             broadcastGameState();
             System.out.println("WRONG MOVE!!!");
+        }
+    }
+
+    private static void deleteCard(int order, Card playerCard) {
+        String msg = order + ":" + playerCard.value() + ":" + playerCard.color();
+        System.out.println("DELETING CARD");
+        synchronized (clients) {
+            for (Socket client : clients) {
+                try {
+                    if (!client.isClosed()) {
+                        OutputStream writer = client.getOutputStream();
+                        Protocol message = new Protocol(ProtocolType.DELETE, msg);
+                        writer.write(Converter.encode(message));
+                        writer.flush();
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error sending game state to client: " + e.getMessage());
+                }
+            }
         }
     }
 
