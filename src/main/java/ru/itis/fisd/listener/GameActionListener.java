@@ -1,6 +1,7 @@
 package ru.itis.fisd.listener;
 
 import javafx.scene.control.Button;
+import lombok.Getter;
 import ru.itis.fisd.app.Game;
 import ru.itis.fisd.app.GameLogic;
 import ru.itis.fisd.app.GameState;
@@ -12,11 +13,16 @@ import ru.itis.fisd.entity.Player;
 import ru.itis.fisd.protocol.Protocol;
 import ru.itis.fisd.protocol.ProtocolType;
 
+@Getter
 public class GameActionListener {
+
+    @Getter
+    public static GameActionListener instance;
 
     private final GameFXController gameFXController;
 
     public GameActionListener(GameFXController gameFXController) {
+        instance = this;
         this.gameFXController = gameFXController;
     }
 
@@ -66,5 +72,10 @@ public class GameActionListener {
         if (GameState.order == client.getOrder()) {
             client.sendMessage(new Protocol(ProtocolType.GET, client.getSocket().toString()));
         }
+    }
+
+    public void handleUno() {
+        Client client = Game.client;
+        client.sendMessage(new Protocol(ProtocolType.UNO, client.getPlayer().getPlayerCards().size() + ":" + client.getOrder()));
     }
 }

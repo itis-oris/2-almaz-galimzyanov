@@ -12,6 +12,7 @@ import ru.itis.fisd.entity.Card;
 import ru.itis.fisd.entity.CardColor;
 import ru.itis.fisd.entity.Deck;
 import ru.itis.fisd.entity.Player;
+import ru.itis.fisd.listener.GameActionListener;
 import ru.itis.fisd.protocol.Converter;
 import ru.itis.fisd.protocol.Protocol;
 import ru.itis.fisd.protocol.ProtocolType;
@@ -56,7 +57,7 @@ public class Client {
                     String message = protocol.body();
                     System.out.println("Received from server: " + message);
 
-                    if (message.startsWith("updateState")) {
+                    if (protocol.type().equals(ProtocolType.INFO) && message.startsWith("updateState")) {
                         String[] parts = message.split(":")[1].split(",");
                         for (String part : parts) {
                             String[] keyValue = part.split("=");
@@ -66,7 +67,7 @@ public class Client {
                             }
                         }
                         System.out.println("Updated GameState: order=" + GameState.order + ", isStart=" + GameState.isStart);
-                    } else if (message.startsWith("card")) {
+                    } else if (protocol.type().equals(ProtocolType.GAME) && message.startsWith("card")) {
                         System.out.println(message);
                         System.out.println(Arrays.toString(message.split(":")));
                         String[] parts = message.split(":")[1].split("&");
@@ -82,6 +83,7 @@ public class Client {
                         };
                         GameState.currentCard = new Card(Integer.parseInt(value), CardColor.valueOf(String.valueOf(cardColor)));
                         GameFXController.getInstance().setDeckCard(value, Paint.valueOf(color));
+                        sendMessage(new Protocol(ProtocolType.COUNT, (player.getPlayerCards().size() - 1) + ":" + order));
                     } else if (protocol.type().equals(ProtocolType.UI)) {
                         switch (message) {
                             case "start" -> {
@@ -91,7 +93,7 @@ public class Client {
                             case "wait" -> SceneController.activate("waiting_room");
                         }
                     } else if (protocol.type().equals(ProtocolType.GET)) {
-
+                        player.setUno(false);
                         String[] parts = message.split("&");
                         System.out.println(Arrays.toString(parts));
                         if (parts.length == 1) {
@@ -133,15 +135,48 @@ public class Client {
                             }
                         }
                     } else if (protocol.type().equals(ProtocolType.WIN)) {
-                        EndGameFXController.getInstance().setWin(order, Integer.parseInt(message));
+
+                        if (player.isUno()) {
+                            EndGameFXController.getInstance().setWin(order, Integer.parseInt(message));
+                        } else {
+                            EndGameFXController.getInstance().setWin(order, -1);
+                        }
                         SceneController.activate("endgame");
                         sendMessage(new Protocol(ProtocolType.CLOSE, ""));
+                        GameState.currentCard = null;
+                        GameState.isStart = false;
+                        GameState.order = 1;
+                        GameFXController.getInstance().setDeckCard(null, null);
                         socket.close();
+
+                    } else if (protocol.type().equals(ProtocolType.UNO)) {
+                        String[] parts = message.split(":");
+                        System.out.println("PARTS :" + Arrays.toString(parts));
+                        System.out.println("CARD count: " + player.getPlayerCards().size() + " " + order);
+                        if (Integer.parseInt(parts[1]) == order && Integer.parseInt(parts[0]) == 1) {
+                            System.out.println("SET UNO TRUE");
+                            player.setUno(true);
+                        } else if (!player.isUno() && Integer.parseInt(parts[1]) != order && player.getPlayerCards().size() == 1) {
+                            System.out.println("STUPID MAN");
+                            GameActionListener.getInstance().handleDeck();
+                            Thread.sleep(100);
+                            GameActionListener.getInstance().handleDeck();
+                        }
+                    } else if (protocol.type().equals(ProtocolType.COUNT)) {
+                        String[] parts = message.split(":");
+                        System.out.println(Arrays.toString(parts) + "or: " + order);
+                        if (Integer.parseInt(parts[1]) == order) {
+                            Platform.runLater(() -> GameFXController.getInstance().cards.setText(parts[0]));
+
+                        }
+
                     }
                 }
             }
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

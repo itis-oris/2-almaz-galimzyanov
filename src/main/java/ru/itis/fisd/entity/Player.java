@@ -11,5 +11,6 @@ import java.util.List;
 public class Player {
 
     private List<Card> playerCards = new ArrayList<>();
+    private boolean isUno = false;
 
 }

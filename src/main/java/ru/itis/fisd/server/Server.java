@@ -76,10 +76,10 @@ public class Server {
                     System.out.println("Received from client: " + message);
 
                     System.out.println(message);
-                    if (message.startsWith("move:")) {
+                    if (protocol.type().equals(ProtocolType.GAME) && message.startsWith("move:")) {
                         handleMove(message);
                         broadcastGameState();
-                    } else if (message.startsWith("card:")) {
+                    } else if (protocol.type().equals(ProtocolType.GAME) && message.startsWith("card:")) {
                         handleCardMove(message);
                     } else if (protocol.type().equals(ProtocolType.CLOSE)) {
                         synchronized (clients) {
@@ -115,6 +115,23 @@ public class Server {
                             System.out.println("SOLVE WINNER");
                             OutputStream writer = client.getOutputStream();
                             Protocol msg = new Protocol(ProtocolType.WIN, protocol.body());
+                            writer.write(Converter.encode(msg));
+                            writer.flush();
+                        }
+                    } else if (protocol.type().equals(ProtocolType.UNO)) {
+                        for (Socket client : clients) {
+                            System.out.println(client.toString());
+                            System.out.println("UNOUNOUNO");
+                            OutputStream writer = client.getOutputStream();
+                            Protocol msg = new Protocol(ProtocolType.UNO, protocol.body());
+                            writer.write(Converter.encode(msg));
+                            writer.flush();
+                        }
+                    } else if (protocol.type().equals(ProtocolType.COUNT)) {
+                        for (Socket client : clients) {
+                            System.out.println(client.toString());
+                            OutputStream writer = client.getOutputStream();
+                            Protocol msg = new Protocol(ProtocolType.COUNT, protocol.body());
                             writer.write(Converter.encode(msg));
                             writer.flush();
                         }

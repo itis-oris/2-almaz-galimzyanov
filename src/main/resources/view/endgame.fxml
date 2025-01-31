@@ -12,7 +12,8 @@
 
     <!-- Контейнер с текстом и кнопкой, расположенный поверх Pane -->
     <VBox alignment="CENTER" spacing="20">
-        <Label fx:id="winlost" prefWidth="115"/>
+        <Label fx:id="winlost" prefWidth="400" prefHeight="200"
+               style="-fx-font-size: 80px; -fx-font-weight: bold;"/>
         <Button fx:id="back" text="BACK" prefHeight="100" prefWidth="200"/>
     </VBox>
 
