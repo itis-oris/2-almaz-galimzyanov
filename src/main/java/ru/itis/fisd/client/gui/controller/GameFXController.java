@@ -59,9 +59,12 @@ public class GameFXController {
     public void initialize() {
         initStyle();
 
+        cards.setText("7");
+
         buttonActionListener = new GameActionListener(this);
 
         deck.setOnAction(_ -> buttonActionListener.handleDeck());
+        uno.setOnAction(_ -> buttonActionListener.handleUno());
     }
 
     private void initStyle() {
@@ -107,10 +110,15 @@ public class GameFXController {
 
     public void setDeckCard(String value, Paint color) {
 
-        if (current != null) {
+        if (current != null & value != null & color != null) {
             Platform.runLater(() -> {
                 current.setText(value);
                 current.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+            });
+        } else {
+            Platform.runLater(() -> {
+                current.setText("");
+                current.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
             });
         }
     }
